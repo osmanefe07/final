@@ -1,0 +1,13 @@
+﻿@using final.ViewModels;
+@{
+    ViewData["Title"] = "Delete";
+}
+
+@model CarModel
+<h1>Araç Sil</h1>
+<h3>"<b>@Model.Name</b>" Adlı Araç Silinecektir Onaylıyor musunuz?</h3>
+<form asp-controller="Car" asp-action="Delete" method="post">
+    <input type="hidden" asp-for="Id" />
+    <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+    <input type="submit" value="Sil" class="btn btn-danger" />
+</form>

@@ -1,0 +1,50 @@
+﻿@using final.ViewModels;
+@{
+    ViewData["Title"] = "Detail";
+}
+@model CarModel
+<h2>Araç Detayı</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <table class="table">
+            <tr>
+                <td><b>Marka</b></td>
+                <td>@Model.Name</td>
+            </tr>
+            <tr>
+                <td><b>Model</b></td>
+                <td>@Model.Title</td>
+            </tr>
+            <tr>
+                <td><b>Açıklama</b></td>
+                <td>@Model.Description</td>
+            </tr>
+            <tr>
+                <td><b>Fiyat</b></td>
+                <td>@Model.Price</td>
+            </tr>
+
+            <tr>
+                <td><b>Uygunluk</b></td>
+                <td>
+                    @if (Model.Status)
+                    {
+                        <span class="badge bg-success">Uygun</span>
+                    }
+                    else
+                    {
+
+                        <span class="badge bg-danger">Müşteride</span>
+                    }
+                </td>
+            </tr>
+        </table>
+
+        <a asp-action="Index" class="btn btn-secondary">Geri Dön</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Düzenle</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">Sil</a>
+
+    </div>
+</div>

@@ -1,0 +1,220 @@
+﻿@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Müşteriler</h2>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <div id="progress"></div>
+
+
+        <table class="table" id="tbCustomers">
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>Ad</th>
+                    <th>Adres</th>
+                    <th>Telefon</th>
+                    <th>E-posta</th>
+                    <th>Düzenle</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+
+        </table>
+
+    </div>
+    <div class="col-md-4">
+
+        <h3 id="baslik"></h3><hr />
+
+        <div class="mb-3">
+            <label>Ad</label>
+            <input type="text" class="form-control" id="txtName" />
+        </div>
+        <div class="mb-3">
+            <label>Telefon</label>
+            <input type="text" class="form-control" id="txtPhone" />
+        </div>
+        <div class="mb-3">
+            <label>Adres</label>
+            <input type="text" class="form-control" id="txtAddress" />
+        </div>
+        <div class="mb-3">
+            <label>E-posta</label>
+            <input type="text" class="form-control" id="txtEmail" />
+        </div>
+        <div class="mb-3">
+            <input type="hidden" id="txtId" />
+            <button class="btn btn-primary" id="btnKaydet">Kaydet</button>
+            <button class="btn btn-secondary" id="btnVazgec">Vazgeç</button>
+            <button class="btn btn-danger" id="btnSil">Sil</button>
+        </div>
+        <div class="alert" id="sonuc"></div>
+
+    </div>
+</div>
+
+
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            LoadCustomers();
+
+
+            function LoadCustomers() {
+                $("#btnVazgec").hide();
+                $("#btnSil").hide();
+                $("#baslik").html("Yeni Kayıt");
+                $("#txtName").val("");
+                $("#txtId").val("");
+                $("#txtAddress").val("");
+                $("#txtPhone").val("");
+                $("#txtEmail").val("");
+                $("#tbCustomers tbody").empty();
+                $.ajax({
+                    url: "/Customer/CustomerListAjax",
+                    type: "Get",
+                    data: {},
+                    success: function (data) {
+                        var i = 1;
+                        var t = 0;
+                        var b = 0;
+                        $.each(data, function (index, item) {
+                            var cl = "";
+                            var msg = "";
+                            if (item.name == 0) {
+                                cl = "danger";
+                                msg = "Bekliyor";
+                                b++;
+                            } else {
+                                cl = "success";
+                                msg = "Tamamlandı";
+                                t++;
+                            }
+
+                            var customer = '<tr id="' + item.id + '"><td>' + i + ' </td> <td>' + item.name + '</td><td>' + item.address + '</td> <td>' + item.phone + '</td><td>' + item.email + '</td><td><button class="btn btn-warning edit">Düzenle</button></td> </tr>';
+
+                            $("#tbCustomers tbody").append(customer);
+                            i++;
+
+
+
+                        });
+                        var yuzde = 0;
+                        var total = b + t;
+                        if (t > 0 && total > 0) {
+                            yuzde = Math.round(100 * (t / total));
+
+                        }
+
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    },
+                });
+
+            }
+
+
+            $("#btnKaydet").click(function () {
+
+                var id = $("#txtId").val();
+                var name = $("#txtName").val();
+                var phone = $("#txtPhone").val();
+                var address = $("#txtAddress").val();
+                var email = $("#txtEmail").val();
+
+                if (name == "" || name == null) {
+                    $("#sonuc")
+                        .removeClass()
+                        .addClass("alert alert-danger")
+                        .html("İsim Giriniz!");
+                    return false;
+                }
+
+                $.ajax({
+                    url: "/Customer/CustomerAddEditAjax",
+                    type: "POST",
+                    data: { id: id, name: name, phone: phone, address: address, email: email, },
+                    success: function (data) {
+                        if (data.status) {
+                            $("#sonuc")
+                                .removeClass()
+                                .addClass("alert alert-success")
+                                .html(data.message);
+                            LoadCustomers();
+                        } else {
+                            $("#sonuc")
+                                .removeClass()
+                                .addClass("alert alert-danger")
+                                .html(data.message);
+                        }
+                    },
+                    error: function (e) { }
+                });
+
+
+
+            });
+
+            $(document).on("click", ".edit", function () {
+                var id = $(this).closest("tr").attr("id");
+                $("#baslik").html("Kayıt Düzenle");
+                $("#btnVazgec").show();
+                $("#btnSil").show();
+                $.ajax({
+                    url: "/customer/CustomerByIdAjax",
+                    type: "Get",
+                    data: { id: id },
+                    success: function (data) {
+                        $("#txtName").val(data.name);
+                        $("#txtId").val(data.id);
+                        $("#txtEmail").val(data.email);
+                        $("#txtPhone").val(data.phone);
+                        $("#txtAddress").val(data.address);
+                    },
+                    error: function () { }
+                });
+            });
+
+
+            $("#btnVazgec").click(function () {
+                LoadCustomers();
+            });
+            $("#btnSil").click(function () {
+                var id = $("#txtId").val();
+                $.ajax({
+                    url: "/customer/CustomerRemoveAjax",
+                    type: "Get",
+                    data: { id: id },
+                    success: function (data) {
+                        if (data.id) {
+                            $("#sonuc")
+                                .removeClass()
+                                .addClass("alert alert-success")
+                                .html(data.message);
+                            LoadCustomers();
+                        } else {
+                            $("#sonuc")
+                                .removeClass()
+                                .addClass("alert alert-danger")
+                                .html(data.message);
+                        }
+
+                    },
+                    error: function () { }
+                });
+            });
+
+
+
+
+
+        });
+
+    </script>
+}
